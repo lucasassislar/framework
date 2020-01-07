@@ -653,8 +653,10 @@ namespace Accord {
                 // Initialize libavcodec, and register all codecs and formats.
                 av_register_all();
                 //#if DEBUG
-                av_log_set_level(AV_LOG_VERBOSE);
+                //av_log_set_level(AV_LOG_VERBOSE);
                 //#endif
+				av_log_set_level(AV_LOG_QUIET);
+
             }
 
             // Creates a video file with the specified name and properties
@@ -688,10 +690,10 @@ namespace Accord {
                         audioOptions,
                         videoOptions);
 
-                    if (data->have_video)
+                    /*if (data->have_video)
                         Console::WriteLine("VideoStream->time_base: {0}/{1}", data->video_st.st->time_base.num, data->video_st.st->time_base.den);
                     if (data->have_audio)
-                        Console::WriteLine("AudioStream->time_base: {0}/{1}", data->audio_st.st->time_base.num, data->audio_st.st->time_base.den);
+                        Console::WriteLine("AudioStream->time_base: {0}/{1}", data->audio_st.st->time_base.num, data->audio_st.st->time_base.den);*/
 
                     success = true;
                 }

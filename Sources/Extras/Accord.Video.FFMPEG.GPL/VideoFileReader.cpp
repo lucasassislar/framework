@@ -191,6 +191,9 @@ namespace Accord {
                     m_videoCodecName = gcnew String(data->VideoCodecContext->codec->name);
                     m_videoFramesCount = data->VideoStream->nb_frames;
                     m_videoBitRate = (int)data->VideoCodecContext->bit_rate;
+					m_videoDuration = data->VideoStream->duration;
+					m_avgFrameRate = Rational(data->VideoStream->avg_frame_rate.num, data->VideoStream->avg_frame_rate.den);
+					m_timeBase = Rational(data->VideoStream->time_base.num, data->VideoStream->time_base.den);
 
                     if (data->AudioStream != nullptr)
                     {

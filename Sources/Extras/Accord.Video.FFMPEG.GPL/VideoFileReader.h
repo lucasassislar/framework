@@ -43,434 +43,497 @@ using namespace Accord::Video;
 using namespace Accord::Math;
 
 namespace Accord {
-    namespace Video {
-        namespace FFMPEG
-        {
-            ref class VideoFileWriter;
-            ref struct ReaderPrivateData;
+	namespace Video {
+		namespace FFMPEG
+		{
+			ref class VideoFileWriter;
+			ref struct ReaderPrivateData;
 
-            /// <summary>
-            ///   Class for reading video files utilizing FFmpeg library.
-            /// </summary>
-            /// 
-            /// <remarks>
-            ///   <para>This class allows to read video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
-            /// 
-            ///   <para><note>Make sure you have <b>FFmpeg</b> binaries (DLLs) in the output folder of your application in order
-            ///   to use this class successfully. <b>FFmpeg</b> binaries can be found in Externals folder provided with Accord.NET
-            ///   framework's distribution.</note></para>
-            /// </remarks>
-            /// 
-            /// <example>
-            /// <para>
-            ///   After making sure FFMPEG's dlls are contained in the output folder of your application,
-            ///   you can use the following code to open a video file and read frames in order from it:</para>
-            /// <code>
-            /// // create instance of video reader
-            /// VideoFileReader reader = new VideoFileReader();
-            ///
-            /// // open video file
-            /// reader.Open("test.avi");
-            /// 
-            /// // check some of its attributes
-            /// Console.WriteLine("width:  " + reader.Width);
-            /// Console.WriteLine("height: " + reader.Height);
-            /// Console.WriteLine("fps:    " + reader.FrameRate);
-            /// Console.WriteLine("codec:  " + reader.CodecName);
-            ///
-            /// // read 100 video frames out of it
-            /// for (int i = 0; i &lt; 100; i++)
-            /// {
-            ///     using (Bitmap videoFrame = reader.ReadVideoFrame())
-            ///     {
-            ///         // process the frame somehow
-            ///         // ...
-            ///     }
-            /// }
-            ///
-            /// reader.Close();
-            /// </code>
-            ///
-            /// <para>
-            ///   Creating new Bitmaps for every frame can be quite expensive. The following example shows how 
-            ///   to read frames into a pre-allocated Bitmap and reuse this same memory location for each frame.
-            ///   It also shows how to process each frame using a face detector, and how to save those detections
-            ///   back to disk in the form of individual frames and as a .mp4 file using <see cref="VideoFileWriter"/>.</para>
-            ///   <code source="Sources\Extras\Accord.Tests.Video.FFMPEG\ObjectDetectorTest.cs" region="doc_video"/>
-            ///   <img src="..\images\video\haar_frame_24.png" />
-            /// <para>
-            ///   The <a href="https://1drv.ms/v/s!AoiTwBxoR4OAoLJhPozzixD25XcbiQ">generated video file can be found here</a>.</para>
-            ///
-            /// <para>
-            ///   The next example shows how to feed the frames returned by the VideoFileReader into an object
-            ///   tracker, how to mark the tracked object positions using RectanglesMarker, and 
-            ///   save those frames as individual files to the disk.</para>
-            ///   <code source="Sources\Extras\Accord.Tests.Video.FFMPEG\MatchingTrackerTest.cs" region="doc_track" />
-            ///   <img src="..\images\video\matching_frame_223.png" />
-            /// </example>
-            ///
-            /// <seealso cref="VideoFileWriter"/>
-            ///
-            public ref class VideoFileReader : IDisposable
-            {
-                int                    m_width;
-                int                    m_height;
-                Rational               m_videoFrameRate;
-                String^                m_videoCodecName;
-                Int64                  m_videoFramesCount;
-                int                    m_videoBitRate;
-                FFMPEG::VideoCodec     m_videoCodec;
+			/// <summary>
+			///   Class for reading video files utilizing FFmpeg library.
+			/// </summary>
+			/// 
+			/// <remarks>
+			///   <para>This class allows to read video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
+			/// 
+			///   <para><note>Make sure you have <b>FFmpeg</b> binaries (DLLs) in the output folder of your application in order
+			///   to use this class successfully. <b>FFmpeg</b> binaries can be found in Externals folder provided with Accord.NET
+			///   framework's distribution.</note></para>
+			/// </remarks>
+			/// 
+			/// <example>
+			/// <para>
+			///   After making sure FFMPEG's dlls are contained in the output folder of your application,
+			///   you can use the following code to open a video file and read frames in order from it:</para>
+			/// <code>
+			/// // create instance of video reader
+			/// VideoFileReader reader = new VideoFileReader();
+			///
+			/// // open video file
+			/// reader.Open("test.avi");
+			/// 
+			/// // check some of its attributes
+			/// Console.WriteLine("width:  " + reader.Width);
+			/// Console.WriteLine("height: " + reader.Height);
+			/// Console.WriteLine("fps:    " + reader.FrameRate);
+			/// Console.WriteLine("codec:  " + reader.CodecName);
+			///
+			/// // read 100 video frames out of it
+			/// for (int i = 0; i &lt; 100; i++)
+			/// {
+			///     using (Bitmap videoFrame = reader.ReadVideoFrame())
+			///     {
+			///         // process the frame somehow
+			///         // ...
+			///     }
+			/// }
+			///
+			/// reader.Close();
+			/// </code>
+			///
+			/// <para>
+			///   Creating new Bitmaps for every frame can be quite expensive. The following example shows how 
+			///   to read frames into a pre-allocated Bitmap and reuse this same memory location for each frame.
+			///   It also shows how to process each frame using a face detector, and how to save those detections
+			///   back to disk in the form of individual frames and as a .mp4 file using <see cref="VideoFileWriter"/>.</para>
+			///   <code source="Sources\Extras\Accord.Tests.Video.FFMPEG\ObjectDetectorTest.cs" region="doc_video"/>
+			///   <img src="..\images\video\haar_frame_24.png" />
+			/// <para>
+			///   The <a href="https://1drv.ms/v/s!AoiTwBxoR4OAoLJhPozzixD25XcbiQ">generated video file can be found here</a>.</para>
+			///
+			/// <para>
+			///   The next example shows how to feed the frames returned by the VideoFileReader into an object
+			///   tracker, how to mark the tracked object positions using RectanglesMarker, and 
+			///   save those frames as individual files to the disk.</para>
+			///   <code source="Sources\Extras\Accord.Tests.Video.FFMPEG\MatchingTrackerTest.cs" region="doc_track" />
+			///   <img src="..\images\video\matching_frame_223.png" />
+			/// </example>
+			///
+			/// <seealso cref="VideoFileWriter"/>
+			///
+			public ref class VideoFileReader : IDisposable
+			{
+				int                    m_width;
+				int                    m_height;
+				Rational               m_videoFrameRate;
+				String^                m_videoCodecName;
+				Int64                  m_videoFramesCount;
+				int                    m_videoBitRate;
+				int                    m_videoDuration;
+				FFMPEG::VideoCodec     m_videoCodec;
 
-                int                    m_audioSampleRate;
-                FFMPEG::AVSampleFormat m_audioSampleFormat;
-                String^                m_audioCodecName;
-                Int64                  m_audioFramesCount;
-                int                    m_audioBitRate;
-                FFMPEG::AudioCodec     m_audioCodec;
+				Rational               m_avgFrameRate;
+				Rational               m_timeBase;
 
-                // private data of the class
-                ReaderPrivateData^ data;
-                bool disposed;
+				int                    m_audioSampleRate;
+				FFMPEG::AVSampleFormat m_audioSampleFormat;
+				String^                m_audioCodecName;
+				Int64                  m_audioFramesCount;
+				int                    m_audioBitRate;
+				FFMPEG::AudioCodec     m_audioCodec;
 
-                Bitmap^ DecodeVideoFrame(BitmapData^ bitmapData);
-                IList<byte>^ DecodeAudioFrame(IList<byte>^ audio);
+				// private data of the class
+				ReaderPrivateData^ data;
+				bool disposed;
 
-                Bitmap^ readVideoFrame(int frameIndex, BitmapData^ image, IList<byte>^ audio);
+				Bitmap^ DecodeVideoFrame(BitmapData^ bitmapData);
+				IList<byte>^ DecodeAudioFrame(IList<byte>^ audio);
 
-                // Checks if video file was opened
-                void CheckIfVideoFileIsOpen()
-                {
-                    if (data == nullptr)
-                        throw gcnew IOException("Video file is not open, so can not access its properties.");
-                }
+				Bitmap^ readVideoFrame(int frameIndex, BitmapData^ image, IList<byte>^ audio);
 
-                // Check if the object was already disposed
-                void CheckIfDisposed()
-                {
-                    if (disposed)
-                        throw gcnew ObjectDisposedException("The object was already disposed.");
-                }
+				// Checks if video file was opened
+				void CheckIfVideoFileIsOpen()
+				{
+					if (data == nullptr)
+						throw gcnew IOException("Video file is not open, so can not access its properties.");
+				}
 
-            protected:
-                /// <summary>
-                /// Object's finalizer.
-                /// </summary>
-                /// 
-                !VideoFileReader()
-                {
-                    Close();
-                }
+				// Check if the object was already disposed
+				void CheckIfDisposed()
+				{
+					if (disposed)
+						throw gcnew ObjectDisposedException("The object was already disposed.");
+				}
 
-            public:
-                /// <summary>
-                /// Frame width of the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property int Width
-                {
-                    int get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_width;
-                    }
-                }
+			protected:
+				/// <summary>
+				/// Object's finalizer.
+				/// </summary>
+				/// 
+				!VideoFileReader()
+				{
+					Close();
+				}
 
-                /// <summary>
-                /// Frame height of the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property int Height
-                {
-                    int get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_height;
-                    }
-                }
+			public:
+				property Rational TimeBase
+				{
+					Rational get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_timeBase;
+					}
+				}
 
-                /// <summary>
-                /// Frame rate of the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property Rational FrameRate
-                {
-                    Rational get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_videoFrameRate;
-                    }
-                }
+				property Rational AvgFrameRate
+				{
+					Rational get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_avgFrameRate;
+					}
+				}
 
-                /// <summary>
-                /// Audio frame rate of the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property int SampleRate
-                {
-                    int get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_audioSampleRate;
-                    }
-                }
+				property int Duration
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoDuration;
+					}
+				}
 
-                /// <summary>
-                /// Number of video frames in the opened video file.
-                /// </summary>
-                ///
-                /// <remarks><para><note><b>Warning</b>: some video file formats may report different value
-                /// from the actual number of video frames in the file (subject to fix/investigate).</note></para>
-                /// </remarks>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property Int64 FrameCount
-                {
-                    Int64 get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_videoFramesCount;
-                    }
-                }
+				property int AudioBitRate
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_audioBitRate;
+					}
+				}
 
-                /// <summary>
-                /// Bit rate of the video stream.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property int BitRate
-                {
-                    int get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_videoBitRate;
-                    }
-                }
-                
-                /// <summary>
-                /// Gets the codec that has been used to encode the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property FFMPEG::VideoCodec VideoCodec
-                {
-                    FFMPEG::VideoCodec get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_videoCodec;
-                    }
-                }
+				property int AudioSampleRate
+				{
+					int get() {
+						CheckIfVideoFileIsOpen();
+						return m_audioSampleRate;
+					}
+				}
 
-                /// <summary>
-                /// Gets the audio that has been used to encode audio in the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property FFMPEG::AudioCodec AudioCodec
-                {
-                    FFMPEG::AudioCodec get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_audioCodec;
-                    }
-                }
+				property String^ AudioCodecName
+				{
+					String^ get() {
+						CheckIfVideoFileIsOpen();
+						return m_audioCodecName;
+					}
+				}
 
+				property AVSampleFormat AudioSampleFormat {
+					AVSampleFormat get() {
+						CheckIfVideoFileIsOpen();
+						return m_audioSampleFormat;
+					}
+				}
 
+				/// <summary>
+				/// Frame width of the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property int Width
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_width;
+					}
+				}
 
-                /// <summary>
-                /// Name of codec used for encoding the opened video file.
-                /// </summary>
-                ///
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                ///
-                property String^ CodecName
-                {
-                    String^ get()
-                    {
-                        CheckIfVideoFileIsOpen();
-                        return m_videoCodecName;
-                    }
-                }
+				/// <summary>
+				/// Frame height of the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property int Height
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_height;
+					}
+				}
 
-                /// <summary>
-                /// The property specifies if a video file is opened or not by this instance of the class.
-                /// </summary>
-                property bool IsOpen
-                {
-                    bool get()
-                    {
-                        return (data != nullptr);
-                    }
-                }
+				/// <summary>
+				/// Frame rate of the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property Rational FrameRate
+				{
+					Rational get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoFrameRate;
+					}
+				}
 
-                /// <summary>
-                /// Initializes a new instance of the <see cref="VideoFileReader"/> class.
-                /// </summary>
-                /// 
-                VideoFileReader();
+				/// <summary>
+				/// Audio frame rate of the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property int SampleRate
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_audioSampleRate;
+					}
+				}
 
-                /// <summary>
-                /// Disposes the object and frees its resources.
-                /// </summary>
-                /// 
-                ~VideoFileReader()
-                {
-                    this->!VideoFileReader();
-                    disposed = true;
-                }
+				/// <summary>
+				/// Number of video frames in the opened video file.
+				/// </summary>
+				///
+				/// <remarks><para><note><b>Warning</b>: some video file formats may report different value
+				/// from the actual number of video frames in the file (subject to fix/investigate).</note></para>
+				/// </remarks>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property Int64 FrameCount
+				{
+					Int64 get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoFramesCount;
+					}
+				}
 
-                /// <summary>
-                /// Open video file with the specified name.
-                /// </summary>
-                ///
-                /// <param name="fileName">Video file name to open.</param>
-                ///
-                /// <exception cref="System::IO::IOException">Cannot open video file with the specified name.</exception>
-                /// <exception cref="VideoException">A error occurred while opening the video file. See exception message.</exception>
-                ///
-                void Open(String^ fileName);
+				/// <summary>
+				/// Bit rate of the video stream.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property int BitRate
+				{
+					int get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoBitRate;
+					}
+				}
 
-                /// <summary>
-                /// Read next video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                Bitmap^ ReadVideoFrame()
-                {
-                    return ReadVideoFrame(-1);
-                }
+				/// <summary>
+				/// Gets the codec that has been used to encode the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property FFMPEG::VideoCodec VideoCodec
+				{
+					FFMPEG::VideoCodec get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoCodec;
+					}
+				}
 
-                /// <summary>
-                /// Read the given video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                Bitmap^ ReadVideoFrame(int frameIndex)
-                {
-                    return readVideoFrame(frameIndex, nullptr, nullptr);
-                }
-
-                /// <summary>
-                /// Read next video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                void ReadVideoFrame(BitmapData^ output)
-                {
-                    readVideoFrame(-1, output, nullptr);
-                }
-
-                /// <summary>
-                /// Read the given video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                void ReadVideoFrame(int frameIndex, BitmapData^ output)
-                {
-                    readVideoFrame(frameIndex, output, nullptr);
-                }
+				/// <summary>
+				/// Gets the audio that has been used to encode audio in the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property FFMPEG::AudioCodec AudioCodec
+				{
+					FFMPEG::AudioCodec get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_audioCodec;
+					}
+				}
 
 
 
-                /// <summary>
-                /// Read next video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                Bitmap^ ReadVideoFrame(System::Collections::Generic::IList<byte>^ audio)
-                {
-                    return readVideoFrame(-1, nullptr, audio);
-                }
+				/// <summary>
+				/// Name of codec used for encoding the opened video file.
+				/// </summary>
+				///
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				///
+				property String^ CodecName
+				{
+					String^ get()
+					{
+						CheckIfVideoFileIsOpen();
+						return m_videoCodecName;
+					}
+				}
 
-                /// <summary>
-                /// Read the given video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                Bitmap^ ReadVideoFrame(int frameIndex, System::Collections::Generic::IList<byte>^ audio)
-                {
-                    return readVideoFrame(frameIndex, nullptr, audio);
-                }
+				/// <summary>
+				/// The property specifies if a video file is opened or not by this instance of the class.
+				/// </summary>
+				property bool IsOpen
+				{
+					bool get()
+					{
+						return (data != nullptr);
+					}
+				}
 
-                /// <summary>
-                /// Read next video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                void ReadVideoFrame(BitmapData^ output, System::Collections::Generic::IList<byte>^ audio)
-                {
-                    readVideoFrame(-1, output, audio);
-                }
+				/// <summary>
+				/// Initializes a new instance of the <see cref="VideoFileReader"/> class.
+				/// </summary>
+				/// 
+				VideoFileReader();
 
-                /// <summary>
-                /// Read the given video frame of the currently opened video file.
-                /// </summary>
-                /// 
-                /// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
-                /// file was reached. The returned video frame has 24 bpp color format.</returns>
-                /// 
-                /// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
-                /// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
-                /// 
-                void ReadVideoFrame(int frameIndex, BitmapData^ output, System::Collections::Generic::IList<byte>^ audio)
-                {
-                    readVideoFrame(frameIndex, output, audio);
-                }
+				/// <summary>
+				/// Disposes the object and frees its resources.
+				/// </summary>
+				/// 
+				~VideoFileReader()
+				{
+					this->!VideoFileReader();
+					disposed = true;
+				}
+
+				/// <summary>
+				/// Open video file with the specified name.
+				/// </summary>
+				///
+				/// <param name="fileName">Video file name to open.</param>
+				///
+				/// <exception cref="System::IO::IOException">Cannot open video file with the specified name.</exception>
+				/// <exception cref="VideoException">A error occurred while opening the video file. See exception message.</exception>
+				///
+				void Open(String^ fileName);
+
+				/// <summary>
+				/// Read next video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				Bitmap^ ReadVideoFrame()
+				{
+					return ReadVideoFrame(-1);
+				}
+
+				/// <summary>
+				/// Read the given video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				Bitmap^ ReadVideoFrame(int frameIndex)
+				{
+					return readVideoFrame(frameIndex, nullptr, nullptr);
+				}
+
+				/// <summary>
+				/// Read next video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				void ReadVideoFrame(BitmapData^ output)
+				{
+					readVideoFrame(-1, output, nullptr);
+				}
+
+				/// <summary>
+				/// Read the given video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				void ReadVideoFrame(int frameIndex, BitmapData^ output)
+				{
+					readVideoFrame(frameIndex, output, nullptr);
+				}
 
 
 
-                /// <summary>
-                /// Close currently opened video file if any.
-                /// </summary>
-                /// 
-                void Close();
-            };
-        }
-    }
+				/// <summary>
+				/// Read next video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				Bitmap^ ReadVideoFrame(System::Collections::Generic::IList<byte>^ audio)
+				{
+					return readVideoFrame(-1, nullptr, audio);
+				}
+
+				/// <summary>
+				/// Read the given video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				Bitmap^ ReadVideoFrame(int frameIndex, System::Collections::Generic::IList<byte>^ audio)
+				{
+					return readVideoFrame(frameIndex, nullptr, audio);
+				}
+
+				/// <summary>
+				/// Read next video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns next video frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				void ReadVideoFrame(BitmapData^ output, System::Collections::Generic::IList<byte>^ audio)
+				{
+					readVideoFrame(-1, output, audio);
+				}
+
+				/// <summary>
+				/// Read the given video frame of the currently opened video file.
+				/// </summary>
+				/// 
+				/// <returns>Returns the desired frame of the opened file or <see langword="null"/> if end of
+				/// file was reached. The returned video frame has 24 bpp color format.</returns>
+				/// 
+				/// <exception cref="System::IO::IOException">Thrown if no video file was open.</exception>
+				/// <exception cref="VideoException">A error occurred while reading next video frame. See exception message.</exception>
+				/// 
+				void ReadVideoFrame(int frameIndex, BitmapData^ output, System::Collections::Generic::IList<byte>^ audio)
+				{
+					readVideoFrame(frameIndex, output, audio);
+				}
+
+
+
+				/// <summary>
+				/// Close currently opened video file if any.
+				/// </summary>
+				/// 
+				void Close();
+			};
+		}
+	}
 }
