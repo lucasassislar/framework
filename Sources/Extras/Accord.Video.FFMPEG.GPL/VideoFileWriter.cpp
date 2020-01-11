@@ -850,14 +850,14 @@ namespace Accord {
 
 
 
-            int VideoFileWriter::SampleRate::get()
+            int VideoFileWriter::AudioSampleRate::get()
             {
                 if (IsOpen && data->have_audio)
                     return data->audio_st.enc->sample_rate;
                 return data->m_input_audio_sample_rate;
             }
 
-            void VideoFileWriter::SampleRate::set(int value)
+            void VideoFileWriter::AudioSampleRate::set(int value)
             {
                 SET(data->m_input_audio_sample_rate)
             }
@@ -888,27 +888,27 @@ namespace Accord {
 
 
 
-            int VideoFileWriter::FrameSize::get()
+            int VideoFileWriter::AudioFrameSize::get()
             {
                 if (IsOpen && data->have_audio && data->audio_st.tmp_frame != nullptr)
                     return data->audio_st.tmp_frame->nb_samples;
                 return data->m_input_audio_frame_size;
             }
 
-            void VideoFileWriter::FrameSize::set(int value)
+            void VideoFileWriter::AudioFrameSize::set(int value)
             {
                 SET(data->m_input_audio_frame_size)
             }
 
 
-            FFMPEG::AVSampleFormat VideoFileWriter::SampleFormat::get()
+            FFMPEG::AVSampleFormat VideoFileWriter::AudioSampleFormat::get()
             {
                 if (IsOpen && data->have_audio)
                     return (FFMPEG::AVSampleFormat)data->audio_st.enc->sample_fmt;
                 return data->m_output_audio_sample_format;
             }
 
-            void VideoFileWriter::SampleFormat::set(FFMPEG::AVSampleFormat value)
+            void VideoFileWriter::AudioSampleFormat::set(FFMPEG::AVSampleFormat value)
             {
                 SET(data->m_output_audio_sample_format)
             }

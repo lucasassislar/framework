@@ -154,7 +154,7 @@ namespace Accord {
                 /// Gets or sets the audio sample rate for the current file.
                 /// </summary>
                 ///
-                property int SampleRate { int get(); void set(int); }
+                property int AudioSampleRate { int get(); void set(int); }
 
 
                 /// <summary>
@@ -174,7 +174,7 @@ namespace Accord {
                 /// Gets or sets the audio frame size for the current file.
                 /// </summary>
                 ///
-                property int FrameSize { int get(); void set(int); }
+                property int AudioFrameSize { int get(); void set(int); }
 
                 /// <summary>
                 /// Gets or sets the pixel format for the current file.
@@ -186,7 +186,7 @@ namespace Accord {
                 /// Gets or sets the audio sample format for the current file.
                 /// </summary>
                 ///
-                property FFMPEG::AVSampleFormat SampleFormat { FFMPEG::AVSampleFormat get(); void set(FFMPEG::AVSampleFormat); }
+                property FFMPEG::AVSampleFormat AudioSampleFormat { FFMPEG::AVSampleFormat get(); void set(FFMPEG::AVSampleFormat); }
 
                 /// <summary>
                 /// Gets or sets the current audio channel layout for the current file.
@@ -348,9 +348,9 @@ namespace Accord {
                     this->FrameRate = videoFrameRate;
                     this->VideoCodec = videoCodec;
                     this->BitRate = videoBitRate;
-                    this->FrameSize = audioFrameSize;
+                    this->AudioFrameSize = audioFrameSize;
                     this->AudioLayout = audioChannels;
-                    this->SampleRate = audioSampleRate;
+                    this->AudioSampleRate = audioSampleRate;
                     this->AudioCodec = audioCodec;
                     this->AudioBitRate = audioBitRate;
 
